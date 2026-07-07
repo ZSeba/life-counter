@@ -5,7 +5,7 @@ import PlayerCard from './src/components/PlayerCard'
 import SettingsModal from './src/components/SettingsModal'
 import { playLossSound, unloadSound } from './src/utils/sound'
 import { COLORS, DEFAULT_LIFE, STARTING_LIFE_OPTIONS } from './src/utils/constants'
-import type { Player } from './src/utils/constants'
+import type { Player, LifeLogEntry } from './src/utils/constants'
 
 function buildPlayers(count: number, startingLife: number): Player[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -22,6 +22,9 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState(true)
   const soundRef = useRef(soundEnabled)
   soundRef.current = soundEnabled
+  const [lifeLog, setLifeLog] = useState<LifeLogEntry[]>([])
+  const playersRef = useRef(players)
+  playersRef.current = players
 
   useEffect(() => {
     return () => { unloadSound() }
@@ -44,9 +47,14 @@ export default function App() {
   const tapTimestamps = useRef<Record<number, number[]>>({})
 
   const handleUpdateLife = useCallback((id: number, newLife: number, source: 'tap' | 'swipe') => {
+    const curPlayers = playersRef.current
+    const player = curPlayers.find((p) => p.id === id)
+    if (player && newLife !== player.life) {
+      setLifeLog((prev) => [...prev, { playerName: player.name, delta: newLife - player.life }])
+    }
     setPlayers((prev) => {
-      const player = prev.find((p) => p.id === id)
-      if (player && newLife < player.life && source === 'tap') {
+      const p = prev.find((p) => p.id === id)
+      if (p && newLife < p.life && source === 'tap') {
         const now = Date.now()
         const timestamps = (tapTimestamps.current[id] || []).filter((t) => now - t < 1500)
         timestamps.push(now)
@@ -75,7 +83,10 @@ export default function App() {
           </TouchableOpacity>
           <Text style={styles.title}>Life Counter</Text>
           <TouchableOpacity
-            onPress={() => setPlayers((prev) => prev.map((p) => ({ ...p, life: startingLife })))}
+            onPress={() => {
+              setPlayers((prev) => prev.map((p) => ({ ...p, life: startingLife })))
+              setLifeLog([])
+            }}
             style={styles.resetBtn}
           >
             <Text style={styles.resetText}>Reset</Text>
@@ -105,6 +116,7 @@ export default function App() {
           startingLifeOptions={STARTING_LIFE_OPTIONS}
           soundEnabled={soundEnabled}
           onSoundToggle={() => setSoundEnabled((s) => !s)}
+          lifeLog={lifeLog}
         />
       </View>
     </SafeAreaView>

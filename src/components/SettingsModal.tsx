@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Switch } from 'react-native'
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Switch, ScrollView } from 'react-native'
 import { COLORS, MIN_PLAYERS, MAX_PLAYERS } from '../utils/constants'
+import type { LifeLogEntry } from '../utils/constants'
 
 type Props = {
   visible: boolean
@@ -11,6 +12,25 @@ type Props = {
   startingLifeOptions: readonly number[]
   soundEnabled: boolean
   onSoundToggle: () => void
+  lifeLog: LifeLogEntry[]
+}
+
+function groupLog(entries: LifeLogEntry[]): LifeLogEntry[] {
+  if (entries.length === 0) return []
+  const grouped: LifeLogEntry[] = []
+  const reversed = [...entries].reverse()
+  let current = { ...reversed[0] }
+  for (let i = 1; i < reversed.length; i++) {
+    const entry = reversed[i]
+    if (entry.playerName === current.playerName && Math.sign(entry.delta) === Math.sign(current.delta)) {
+      current.delta += entry.delta
+    } else {
+      grouped.push(current)
+      current = { ...entry }
+    }
+  }
+  grouped.push(current)
+  return grouped
 }
 
 export default function SettingsModal({
@@ -23,6 +43,7 @@ export default function SettingsModal({
   startingLifeOptions,
   soundEnabled,
   onSoundToggle,
+  lifeLog,
 }: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -70,6 +91,21 @@ export default function SettingsModal({
               trackColor={{ false: '#555', true: COLORS.accent }}
               thumbColor={soundEnabled ? '#fff' : '#ccc'}
             />
+          </View>
+
+          <Text style={styles.label}>Life Log</Text>
+          <View style={styles.logContainer}>
+            {lifeLog.length === 0 ? (
+              <Text style={styles.logEmpty}>No changes yet</Text>
+            ) : (
+              <ScrollView style={styles.logScroll} nestedScrollEnabled>
+                {groupLog(lifeLog).map((entry, i) => (
+                  <Text key={i} style={[styles.logEntry, { color: entry.delta > 0 ? COLORS.plus : COLORS.minus }]}>
+                    {entry.playerName} {entry.delta > 0 ? 'gained' : 'lost'} {Math.abs(entry.delta)} life
+                  </Text>
+                ))}
+              </ScrollView>
+            )}
           </View>
 
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
@@ -162,6 +198,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+  },
+  logContainer: {
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 24,
+    maxHeight: 160,
+  },
+  logScroll: {
+    maxHeight: 140,
+  },
+  logEmpty: {
+    color: COLORS.text,
+    fontSize: 14,
+    opacity: 0.5,
+    textAlign: 'center',
+    paddingVertical: 8,
+  },
+  logEntry: {
+    fontSize: 14,
+    fontWeight: '600',
+    paddingVertical: 3,
   },
   closeBtn: {
     backgroundColor: COLORS.accent,

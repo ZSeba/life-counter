@@ -13,6 +13,7 @@ describe('SettingsModal', () => {
     startingLifeOptions: [20, 30, 40] as const,
     soundEnabled: true,
     onSoundToggle: vi.fn(),
+    lifeLog: [],
   }
 
   it('renders when visible', () => {
