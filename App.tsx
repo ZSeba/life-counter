@@ -71,7 +71,7 @@ export default function App() {
   }, [])
 
   const playerCount = players.length
-  const cols = playerCount <= 2 ? 1 : playerCount <= 4 ? 2 : 3
+  const cols = playerCount <= 2 ? 1 : playerCount === 3 ? 3 : playerCount <= 4 ? 2 : 3
 
   return (
     <SafeAreaView style={styles.safe}>
