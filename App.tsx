@@ -82,7 +82,7 @@ export default function App() {
     })
   }, [])
 
-  const cols = playerCount <= 2 ? 1 : playerCount === 5 ? 3 : 2
+  const cols = playerCount <= 2 ? 1 : playerCount <= 4 ? 2 : 2
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -128,6 +128,53 @@ export default function App() {
                   player={players[2]}
                   index={2}
                   playerCount={3}
+                  onUpdateLife={handleUpdateLife}
+                />
+              </View>
+            </View>
+          </View>
+        ) : playerCount === 5 ? (
+          <View style={styles.grid}>
+            <View style={styles.fiveRow}>
+              <PlayerCard
+                player={players[0]}
+                index={0}
+                playerCount={5}
+                onUpdateLife={handleUpdateLife}
+              />
+            </View>
+            <View style={styles.fiveRow}>
+              <View style={styles.fiveHalf}>
+                <PlayerCard
+                  player={players[1]}
+                  index={1}
+                  playerCount={5}
+                  onUpdateLife={handleUpdateLife}
+                />
+              </View>
+              <View style={styles.fiveHalf}>
+                <PlayerCard
+                  player={players[2]}
+                  index={2}
+                  playerCount={5}
+                  onUpdateLife={handleUpdateLife}
+                />
+              </View>
+            </View>
+            <View style={styles.fiveRow}>
+              <View style={styles.fiveHalf}>
+                <PlayerCard
+                  player={players[3]}
+                  index={3}
+                  playerCount={5}
+                  onUpdateLife={handleUpdateLife}
+                />
+              </View>
+              <View style={styles.fiveHalf}>
+                <PlayerCard
+                  player={players[4]}
+                  index={4}
+                  playerCount={5}
                   onUpdateLife={handleUpdateLife}
                 />
               </View>
@@ -202,4 +249,6 @@ const styles = StyleSheet.create({
   threeTop: { flex: 0.8 },
   threeBottom: { flex: 1.2, flexDirection: 'row' },
   threeBottomHalf: { flex: 1 },
+  fiveRow: { flex: 1 },
+  fiveHalf: { flex: 1 },
 })
