@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import PlayerCard from './src/components/PlayerCard'
 import SettingsModal from './src/components/SettingsModal'
 import { playLossSound, unloadSound } from './src/utils/sound'
+import { loadSettings, savePlayerCount, saveStartingLife } from './src/utils/storage'
 import { COLORS, DEFAULT_LIFE, STARTING_LIFE_OPTIONS } from './src/utils/constants'
 import type { Player, LifeLogEntry } from './src/utils/constants'
 
@@ -27,8 +28,19 @@ export default function App() {
   playersRef.current = players
 
   useEffect(() => {
+    loadSettings().then((saved) => {
+      if (saved) {
+        setStartingLife(saved.startingLife)
+        setPlayers(buildPlayers(saved.playerCount, saved.startingLife))
+      }
+    })
     return () => { unloadSound() }
   }, [])
+
+  const playerCount = players.length
+
+  useEffect(() => { savePlayerCount(playerCount) }, [playerCount])
+  useEffect(() => { saveStartingLife(startingLife) }, [startingLife])
 
   const handleStartingLifeChange = useCallback((life: number) => {
     setStartingLife(life)
@@ -70,7 +82,6 @@ export default function App() {
     })
   }, [])
 
-  const playerCount = players.length
   const cols = playerCount <= 2 ? 1 : playerCount <= 4 ? 2 : 3
 
   return (
