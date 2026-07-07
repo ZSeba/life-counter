@@ -23,3 +23,8 @@ export type Player = {
   name: string
   life: number
 }
+
+export type LifeLogEntry = {
+  playerName: string
+  delta: number
+}
