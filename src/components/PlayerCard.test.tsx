@@ -136,4 +136,30 @@ describe('PlayerCard', () => {
     const tree = JSON.stringify(toJSON())
     expect(tree).toContain('-90deg')
   })
+
+  it('applies rotations for 5-player mode', () => {
+    const expectations = ['90deg', '-90deg', undefined, '90deg', '-90deg']
+    expectations.forEach((rot, i) => {
+      const { toJSON } = render(
+        <PlayerCard player={makePlayer({ id: i, name: `P${i + 1}` })} index={i} playerCount={5} onUpdateLife={vi.fn()} />
+      )
+      const tree = JSON.stringify(toJSON())
+      if (rot) {
+        expect(tree).toContain(rot)
+      } else {
+        expect(tree).not.toContain('transform')
+      }
+    })
+  })
+
+  it('applies alternating 90/-90 rotations for 6-player mode', () => {
+    const expectations = ['90deg', '-90deg', '90deg', '-90deg', '90deg', '-90deg']
+    expectations.forEach((rot, i) => {
+      const { toJSON } = render(
+        <PlayerCard player={makePlayer({ id: i, name: `P${i + 1}` })} index={i} playerCount={6} onUpdateLife={vi.fn()} />
+      )
+      const tree = JSON.stringify(toJSON())
+      expect(tree).toContain(rot)
+    })
+  })
 })
