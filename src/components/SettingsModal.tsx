@@ -1,14 +1,29 @@
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Switch } from 'react-native'
 import { COLORS, MIN_PLAYERS, MAX_PLAYERS } from '../utils/constants'
 
+type Props = {
+  visible: boolean
+  onClose: () => void
+  playerCount: number
+  onPlayerCountChange: (count: number) => void
+  startingLife: number
+  onStartingLifeChange: (life: number) => void
+  startingLifeOptions: readonly number[]
+  soundEnabled: boolean
+  onSoundToggle: () => void
+}
+
 export default function SettingsModal({
   visible,
   onClose,
   playerCount,
   onPlayerCountChange,
+  startingLife,
+  onStartingLifeChange,
+  startingLifeOptions,
   soundEnabled,
   onSoundToggle,
-}) {
+}: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -30,6 +45,21 @@ export default function SettingsModal({
             >
               <Text style={styles.btnText}>+</Text>
             </TouchableOpacity>
+          </View>
+
+          <Text style={styles.label}>Starting Life</Text>
+          <View style={styles.row}>
+            {startingLifeOptions.map((life) => (
+              <TouchableOpacity
+                key={life}
+                style={[styles.lifeBtn, startingLife === life && styles.lifeBtnActive]}
+                onPress={() => onStartingLifeChange(life)}
+              >
+                <Text style={[styles.lifeBtnText, startingLife === life && styles.lifeBtnTextActive]}>
+                  {life}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <View style={styles.switchRow}>
@@ -107,6 +137,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     minWidth: 40,
     textAlign: 'center',
+  },
+  lifeBtn: {
+    width: 60,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: COLORS.buttonBg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lifeBtnActive: {
+    backgroundColor: COLORS.accent,
+  },
+  lifeBtnText: {
+    color: COLORS.text,
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  lifeBtnTextActive: {
+    color: '#fff',
   },
   switchRow: {
     flexDirection: 'row',

@@ -1,21 +1,23 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import PlayerCard from './src/components/PlayerCard'
 import SettingsModal from './src/components/SettingsModal'
 import { playLossSound, unloadSound } from './src/utils/sound'
-import { COLORS, DEFAULT_LIFE } from './src/utils/constants'
+import { COLORS, DEFAULT_LIFE, STARTING_LIFE_OPTIONS } from './src/utils/constants'
+import type { Player } from './src/utils/constants'
 
-function buildPlayers(count) {
+function buildPlayers(count: number, startingLife: number): Player[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     name: `P${i + 1}`,
-    life: DEFAULT_LIFE,
+    life: startingLife,
   }))
 }
 
 export default function App() {
-  const [players, setPlayers] = useState(() => buildPlayers(2))
+  const [players, setPlayers] = useState<Player[]>(() => buildPlayers(2, DEFAULT_LIFE))
+  const [startingLife, setStartingLife] = useState(DEFAULT_LIFE)
   const [settingsVisible, setSettingsVisible] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const soundRef = useRef(soundEnabled)
@@ -25,27 +27,43 @@ export default function App() {
     return () => { unloadSound() }
   }, [])
 
-  const handlePlayerCountChange = useCallback((count) => {
+  const handleStartingLifeChange = useCallback((life: number) => {
+    setStartingLife(life)
+    setPlayers((prev) => prev.map((p) => ({ ...p, life })))
+  }, [])
+
+  const handlePlayerCountChange = useCallback((count: number) => {
     setPlayers((prev) => {
       if (count > prev.length) {
-        return [...prev, ...buildPlayers(count).slice(prev.length)]
+        return [...prev, ...buildPlayers(count, startingLife).slice(prev.length)]
       }
       return prev.slice(0, count)
     })
-  }, [])
+  }, [startingLife])
 
-  const handleUpdateLife = useCallback((id, newLife) => {
+  const tapTimestamps = useRef<Record<number, number[]>>({})
+
+  const handleUpdateLife = useCallback((id: number, newLife: number, source: 'tap' | 'swipe') => {
     setPlayers((prev) => {
       const player = prev.find((p) => p.id === id)
-      if (soundRef.current && player && newLife < player.life) {
-        playLossSound()
+      if (player && newLife < player.life && source === 'tap') {
+        const now = Date.now()
+        const timestamps = (tapTimestamps.current[id] || []).filter((t) => now - t < 1500)
+        timestamps.push(now)
+        tapTimestamps.current[id] = timestamps
+        if (soundRef.current && timestamps.length >= 5) {
+          tapTimestamps.current[id] = []
+          playLossSound()
+        }
+      } else {
+        tapTimestamps.current[id] = []
       }
       return prev.map((p) => (p.id === id ? { ...p, life: newLife } : p))
     })
   }, [])
 
   const playerCount = players.length
-  const cols = playerCount <= 2 ? playerCount : playerCount <= 4 ? 2 : 3
+  const cols = playerCount <= 2 ? 1 : playerCount <= 4 ? 2 : 3
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -57,7 +75,7 @@ export default function App() {
           </TouchableOpacity>
           <Text style={styles.title}>Life Counter</Text>
           <TouchableOpacity
-            onPress={() => setPlayers((prev) => prev.map((p) => ({ ...p, life: DEFAULT_LIFE })))}
+            onPress={() => setPlayers((prev) => prev.map((p) => ({ ...p, life: startingLife })))}
             style={styles.resetBtn}
           >
             <Text style={styles.resetText}>Reset</Text>
@@ -70,6 +88,7 @@ export default function App() {
               <PlayerCard
                 player={player}
                 index={i}
+                playerCount={playerCount}
                 onUpdateLife={handleUpdateLife}
               />
             </View>
@@ -81,6 +100,9 @@ export default function App() {
           onClose={() => setSettingsVisible(false)}
           playerCount={playerCount}
           onPlayerCountChange={handlePlayerCountChange}
+          startingLife={startingLife}
+          onStartingLifeChange={handleStartingLifeChange}
+          startingLifeOptions={STARTING_LIFE_OPTIONS}
           soundEnabled={soundEnabled}
           onSoundToggle={() => setSoundEnabled((s) => !s)}
         />
@@ -111,7 +133,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   gearBtn: { padding: 8 },
-  gearText: { fontSize: 24 },
+  gearText: { fontSize: 24, color: COLORS.text },
   resetBtn: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -123,5 +145,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  grid: { flex: 1, justifyContent: 'center' },
+  grid: { flex: 1, alignContent: 'stretch' },
 })
