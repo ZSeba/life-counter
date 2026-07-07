@@ -52,13 +52,13 @@ describe('SettingsModal', () => {
 
   it('shows sound toggle as enabled', () => {
     render(<SettingsModal {...defaultProps} soundEnabled={true} />)
-    const switchEl = screen.UNSAFE_getByType('Switch')
+    const switchEl = screen.UNSAFE_getByType('Switch' as any)
     expect(switchEl.props.value).toBe(true)
   })
 
   it('shows sound toggle as disabled', () => {
     render(<SettingsModal {...defaultProps} soundEnabled={false} />)
-    const switchEl = screen.UNSAFE_getByType('Switch')
+    const switchEl = screen.UNSAFE_getByType('Switch' as any)
     expect(switchEl.props.value).toBe(false)
   })
 

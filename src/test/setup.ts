@@ -4,7 +4,7 @@ const Module = require('module')
 const path = require('path')
 const originalResolve = Module._resolveFilename
 const rnMockPath = path.resolve(__dirname, '__mocks__/react-native.cjs')
-Module._resolveFilename = function (request, parent, isMain, options) {
+Module._resolveFilename = function (request: string, parent: any, isMain: boolean, options: any) {
   if (request === 'react-native') {
     return rnMockPath
   }
