@@ -71,7 +71,7 @@ export default function App() {
   }, [])
 
   const playerCount = players.length
-  const cols = playerCount <= 2 ? 1 : playerCount === 3 ? 3 : playerCount <= 4 ? 2 : 3
+  const cols = playerCount <= 2 ? 1 : playerCount <= 4 ? 2 : 3
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -93,18 +93,48 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.grid, { flexDirection: 'row', flexWrap: 'wrap' }]}>
-          {players.map((player, i) => (
-            <View key={player.id} style={{ width: `${100 / cols}%` }}>
+        {playerCount === 3 ? (
+          <View style={styles.grid}>
+            <View style={styles.threeTop}>
               <PlayerCard
-                player={player}
-                index={i}
-                playerCount={playerCount}
+                player={players[0]}
+                index={0}
+                playerCount={3}
                 onUpdateLife={handleUpdateLife}
               />
             </View>
-          ))}
-        </View>
+            <View style={styles.threeBottom}>
+              <View style={styles.threeBottomHalf}>
+                <PlayerCard
+                  player={players[1]}
+                  index={1}
+                  playerCount={3}
+                  onUpdateLife={handleUpdateLife}
+                />
+              </View>
+              <View style={styles.threeBottomHalf}>
+                <PlayerCard
+                  player={players[2]}
+                  index={2}
+                  playerCount={3}
+                  onUpdateLife={handleUpdateLife}
+                />
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View style={[styles.grid, { flexDirection: 'row', flexWrap: 'wrap' }]}>
+            {players.map((player, i) => (
+              <View key={player.id} style={{ width: `${100 / cols}%` }}>
+                <PlayerCard
+                  player={player}
+                  index={i}
+                    playerCount={playerCount}
+                  onUpdateLife={handleUpdateLife}
+                />
+              </View>
+            ))}
+          </View>)}
 
         <SettingsModal
           visible={settingsVisible}
@@ -158,4 +188,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   grid: { flex: 1, alignContent: 'stretch' },
+  threeTop: { flex: 1 },
+  threeBottom: { flex: 1, flexDirection: 'row' },
+  threeBottomHalf: { flex: 1 },
 })

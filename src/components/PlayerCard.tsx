@@ -14,7 +14,7 @@ type Props = {
 function getRotation(index: number, playerCount: number): number {
   if (playerCount === 4) return [90, -90, 90, -90][index] || 0
   if (playerCount === 2) return index === 0 ? 180 : 0
-  if (playerCount === 3) return [0, 90, -90][index] || 0
+  if (playerCount === 3) return [180, -90, 90][index] || 0
   return 0
 }
 
