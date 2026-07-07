@@ -143,7 +143,7 @@ export default function App() {
                 onUpdateLife={handleUpdateLife}
               />
             </View>
-            <View style={styles.fiveRow}>
+            <View style={[styles.fiveRow, { flexDirection: 'row' }]}>
               <View style={styles.fiveHalf}>
                 <PlayerCard
                   player={players[1]}
@@ -161,7 +161,7 @@ export default function App() {
                 />
               </View>
             </View>
-            <View style={styles.fiveRow}>
+            <View style={[styles.fiveRow, { flexDirection: 'row' }]}>
               <View style={styles.fiveHalf}>
                 <PlayerCard
                   player={players[3]}
