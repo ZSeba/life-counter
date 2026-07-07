@@ -36,3 +36,10 @@ vi.mock('react-native-safe-area-context', () => ({
 }))
 
 vi.mock('../../assets/sounds/loss.mp3', () => ({ default: 'mocked-sound-path' }))
+
+vi.mock('@react-native-async-storage/async-storage', () => ({
+  default: {
+    getItem: vi.fn().mockResolvedValue(null),
+    setItem: vi.fn().mockResolvedValue(undefined),
+  },
+}))
