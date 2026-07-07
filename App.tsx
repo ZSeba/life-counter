@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   grid: { flex: 1, alignContent: 'stretch' },
-  threeTop: { flex: 1 },
-  threeBottom: { flex: 1, flexDirection: 'row' },
+  threeTop: { flex: 0.8 },
+  threeBottom: { flex: 1.2, flexDirection: 'row' },
   threeBottomHalf: { flex: 1 },
 })
