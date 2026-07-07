@@ -15,6 +15,24 @@ type Props = {
   lifeLog: LifeLogEntry[]
 }
 
+function groupLog(entries: LifeLogEntry[]): LifeLogEntry[] {
+  if (entries.length === 0) return []
+  const grouped: LifeLogEntry[] = []
+  const reversed = [...entries].reverse()
+  let current = { ...reversed[0] }
+  for (let i = 1; i < reversed.length; i++) {
+    const entry = reversed[i]
+    if (entry.playerName === current.playerName && Math.sign(entry.delta) === Math.sign(current.delta)) {
+      current.delta += entry.delta
+    } else {
+      grouped.push(current)
+      current = { ...entry }
+    }
+  }
+  grouped.push(current)
+  return grouped
+}
+
 export default function SettingsModal({
   visible,
   onClose,
@@ -81,7 +99,7 @@ export default function SettingsModal({
               <Text style={styles.logEmpty}>No changes yet</Text>
             ) : (
               <ScrollView style={styles.logScroll} nestedScrollEnabled>
-                {[...lifeLog].reverse().map((entry, i) => (
+                {groupLog(lifeLog).map((entry, i) => (
                   <Text key={i} style={[styles.logEntry, { color: entry.delta > 0 ? COLORS.plus : COLORS.minus }]}>
                     {entry.playerName} {entry.delta > 0 ? 'gained' : 'lost'} {Math.abs(entry.delta)} life
                   </Text>
